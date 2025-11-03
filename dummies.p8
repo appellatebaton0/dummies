@@ -1,31 +1,7 @@
 pico-8 cartridge // http://www.pico-8.com
 version 43
 __lua__
-
-// Player
-
-player = {
-	init=function(this)
-		this.x = 64
-		this.y = 64
-	end
-}
-
-function _init()
-	player:init()
-end
-
-function _update()
-	//if (btn(0)) then x=x-speed end
-	//if (btn(1)) then x=x+speed end
-	//if (btn(2)) then y=y-speed end
-	//if (btn(3)) then y=y+speed end
-end
-
-function _draw()
-	cls(4)
-	print(player.x, 2, 2, 0)
-end
+#include dummies.lua
 __gfx__
 11111111000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 10200201000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
