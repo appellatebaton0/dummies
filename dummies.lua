@@ -1,219 +1,149 @@
+--
+-- Baton0
 
--- Conway's Game Of Life
--- Recreation by Baton0
+// Container for collisions
+collisions = {
+    list = {}, // All the current colliders
 
-// Player
+    // Add a new collision.
+    collisions = 0,
+    add_collision=function(this, static, left, top, right, bottom)
+        new = {}
 
-// How many ticks between updates
-ticks_per_update = 0
-tick = 0
+        new.static = static
 
-// How big each square is, in pixels.
-size = 128 / 32
-grid_size = (128/size)-1
+        new.left = left
+        new.top = top
+        new.right = right
+        new.bottom = bottom
 
-// Whether the simulation is paused or not
-paused = true
+        this.list[this.collisions] = new
+        
+        this.collisions += 1
+    end,
 
-// inputs as variables to remind self
-left = 0 right = 1 up = 2 down = 3
-o = 4 x = 5
+    // Sets the bounding box of a collision.
+    set_collision=function(this, index, new_left, new_top, new_right, new_bottom)
+        if #this.list >= index then
+            box = this.list[index]
 
-grid = {
-    data={},
-
-    init=function(this)
-
-        for i=0,grid_size do
-            row = {}
-            
-            switch = false
-            for j=0,grid_size do
-                row[j] = 0
-            end
-
-            this.data[i] = row
+            box.left = new_left
+            box.top = new_top
+            box.right = new_right
+            box.bottom = new_bottom
         end
     end,
 
-    get_neighbors=function(this, x, y)
-        neighbors = 0
+    // Translate a collision by a certain amount.
+    translate_collision=function(this, index, x, y)
+        if #this.list >= index then
+            box = this.list[index]
 
-        for i=-1,1 do
-            for j=-1,1 do
-                if not (i == 0 and j == 0) then
-                    xi = x+i
-                    yj = y+j
+            box.left += x
+            box.top += y
+            box.right += x
+            box.bottom += y
 
-                    if xi < 0 then
-                        xi = grid_size
-                    end
+            this.list[index] = box
 
-                    if yj < 0 then
-                        yj = grid_size
-                    end
+            return box
+        end
+    end,
 
-                    if xi > grid_size then
-                        xi = 0
-                    end
 
-                    if yj > grid_size then
-                        yj = 0
-                    end
+    // Takes in two collision indexes and resolves their collision.
+    resolve_collision=function (this, a, b)
+        if a == b do return false end // If same, ignore.
 
-                    if this.data[xi][yj] == 1 then
-                        neighbors = neighbors + 1
-                    end
-                end
+        // Get the bounding boxes.
+        bxa = this.list[a]
+        bxb = this.list[b]
+
+        if bxa.static and bxb.static then return end
+        if bxa == nil or bxb == nil then return end
+
+        resolve_vector = {x=0,y=0}
+
+        // Make the resolve vector.
+        if bxa.right > bxb.left then resolve_vector.x += bxa.right - bxb.left end
+        if bxa.left < bxb.right then resolve_vector.x += bxa.left - bxb.right end
+        if bxb.bottom > bxb.top then resolve_vector.y += bxa.bottom - bxb.top end
+        if bxa.top < bxb.bottom then resolve_vector.y += bxa.top - bxb.bottom end
+        
+        print(tostr(resolve_vector.x)..","..tostr(resolve_vector.y).." <- "..tostr(bxa.right), 10, 20 + (10*a))
+
+        // Resolve the collision.
+        if bxa == static then     
+            this:translate_collision(a, resolve_vector.x, resolve_vector.y)
+        elseif bxb == static then 
+            this:translate_collision(b, -resolve_vector.x, -resolve_vector.y)
+        else
+            this:translate_collision(a, resolve_vector.x/2, resolve_vector.y/2)
+            this:translate_collision(b, -resolve_vector.x/2, -resolve_vector.y/2)
+        end
+    end,
+
+    // Stops any overlaps between collision boxes.
+    resolve_collisions=function(this)
+        for i=0,#this.list do
+            for j=0,#this.list do
+                this:resolve_collision(i,j)
             end
         end
-
-        return neighbors
     end,
 
-    should_live=function(current, neighbors)
-        return (neighbors == 3 or (current == 1 and neighbors == 2))
-    end,
-
-    update=function(this)
-        next={}
-
-        for i=0,grid_size do
-            row = {}
-            for j=0,grid_size do
-                neighbors = this.get_neighbors(this, i, j)
-
-                if this.should_live(this.data[i][j], neighbors) then
-                    row[j] = 1
-                else
-                    row[j] = 0
-                end
-            end
-            next[i] = row
-        end
-
-        this.data = next
-    end,
-
-    draw=function(this, colorA, colorB)
-        for i=0,grid_size do
-            for j=0,grid_size do
-
-                tx = i * size ty = j * size
-                bx = (i+1)*size-1 by =(j+1)*size-1
-
-                if this.data[i][j] == 0 then
-                    rectfill(tx, ty, bx, by, colorA)
-                else
-                    rectfill(tx, ty, bx, by, colorB)
-                end
-            end
+    // Draw all existing collisions
+    draw_collisions=function(this)
+        for i=0,#this.list do
+            col = this.list[i]
+            rectfill(col.left, col.top, col.right, col.bottom, 3)
         end
     end
 }
 
-cursor = {
+player = {
+    
     init=function(this)
-        this.x = flr(grid_size / 2)
-        this.y = flr(grid_size / 2)
+        collisions:add_collision(false, 64, 64, 68, 68)
+        this.collision_index = #collisions.list
     end,
 
-    control=function(this)
-        nx = this.x
-        ny = this.y
-
-        if btnp(left, 0) then nx = nx - 1 end
-        if btnp(right, 0) then nx = nx + 1 end
-        if btnp(up, 0) then ny = ny - 1 end
-        if btnp(down, 0) then ny = ny + 1 end
-
-        if nx < 0 then
-            nx = grid_size
-        end
-
-        if ny < 0 then
-            ny = grid_size
-        end
-
-        if nx > grid_size then
-            nx = 0
-        end
-
-        if ny > grid_size then
-            ny = 0
-        end
-
-        this.x = nx
-        this.y = ny
+    gravity = 0.3,
+    sum_gravity = 0,
+    apply_gravity=function(this)
+        this.sum_gravity += this.gravity
+        
+        collisions:translate_collision(this.collision_index, 0, this.sum_gravity)
     end,
 
-    write=function(this, grid)
-        if btnp(x,0 ) then
-            px = this.x
-            py = this.y 
-            
-            alive = grid.data[px][py]
-            if alive == 1 then
-                alive = 0
-                sfx(5)
-            else
-                alive = 1
-                sfx(4)
-            end
-            
-            grid.data[px][py] = alive
-        end
+    update=function(this)
+        this:apply_gravity()
     end,
 
-    update=function(this, grid)
-        this.control(this)
-        this.write(this, grid)
-    end,
+    draw=function(this)
+        print("updated "..tostring(this.collision_index), 60, 5)
 
-    draw=function(this, grid)
-        tx = this.x * size ty = this.y * size
-        bx = (this.x+1)*size-1 by =(this.y+1)*size-1
-
-        if grid.data[this.x][this.y] == 1 then
-            color = 10
-        else
-            color = 9
-        end
-
-        rectfill(tx, ty, bx, by, color)
+        col = collisions.list[this.collision_index]
+        rectfill(col.left, col.top, col.right, col.bottom, 3)
     end
 }
 
 function _init()
-	grid:init()
-    cursor:init()
-    music(0)
+    
+    cls(4)
+    player:init()
+    collisions:add_collision(true, 20,100,120,130)
+    
 end
 
 function _update()
+    //player:update()
+cls(4)
+    collisions:resolve_collisions()
+end
 
-    // Pausing
-    if btnp(o,0) then
-        paused = not paused
-    end
-
-    // Ticks & Updating
-    if not paused then 
-        tick = tick + 1
-        if tick >= ticks_per_update then
-            grid:update()
-            tick = 0
-        end
-    end
-
-    // Cursor
-    cursor:update(grid)
-
-	cls(1)
-    grid:draw(0,7)
-    cursor:draw(grid)
-
-    if paused then
-        print("paused (c)", 5, 5, 10)
-    end
+function _draw()
+    
+    player:draw()
+    collisions:draw_collisions()
 end
