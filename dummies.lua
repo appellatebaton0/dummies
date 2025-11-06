@@ -1,149 +1,142 @@
---
+-- Basic Drawing Program
 -- Baton0
 
-// Container for collisions
-collisions = {
-    list = {}, // All the current colliders
+c = {
+    x=3,
+    o=12,
+    n=0
+}
 
-    // Add a new collision.
-    collisions = 0,
-    add_collision=function(this, static, left, top, right, bottom)
-        new = {}
-
-        new.static = static
-
-        new.left = left
-        new.top = top
-        new.right = right
-        new.bottom = bottom
-
-        this.list[this.collisions] = new
-        
-        this.collisions += 1
+printer = {
+    update = function (this)
+        if btnp(4, 1) then this:print() end
     end,
 
-    // Sets the bounding box of a collision.
-    set_collision=function(this, index, new_left, new_top, new_right, new_bottom)
-        if #this.list >= index then
-            box = this.list[index]
-
-            box.left = new_left
-            box.top = new_top
-            box.right = new_right
-            box.bottom = new_bottom
-        end
-    end,
-
-    // Translate a collision by a certain amount.
-    translate_collision=function(this, index, x, y)
-        if #this.list >= index then
-            box = this.list[index]
-
-            box.left += x
-            box.top += y
-            box.right += x
-            box.bottom += y
-
-            this.list[index] = box
-
-            return box
-        end
-    end,
+    print=function (this)
+        printh('{', 'drawings.txt')
 
 
-    // Takes in two collision indexes and resolves their collision.
-    resolve_collision=function (this, a, b)
-        if a == b do return false end // If same, ignore.
+        for i=1,grid.box_size do
+            row = "{"
+            for j=1,grid.box_size do
+                row = row..grid.box[i][j]..','
 
-        // Get the bounding boxes.
-        bxa = this.list[a]
-        bxb = this.list[b]
-
-        if bxa.static and bxb.static then return end
-        if bxa == nil or bxb == nil then return end
-
-        resolve_vector = {x=0,y=0}
-
-        // Make the resolve vector.
-        if bxa.right > bxb.left then resolve_vector.x += bxa.right - bxb.left end
-        if bxa.left < bxb.right then resolve_vector.x += bxa.left - bxb.right end
-        if bxb.bottom > bxb.top then resolve_vector.y += bxa.bottom - bxb.top end
-        if bxa.top < bxb.bottom then resolve_vector.y += bxa.top - bxb.bottom end
-        
-        print(tostr(resolve_vector.x)..","..tostr(resolve_vector.y).." <- "..tostr(bxa.right), 10, 20 + (10*a))
-
-        // Resolve the collision.
-        if bxa == static then     
-            this:translate_collision(a, resolve_vector.x, resolve_vector.y)
-        elseif bxb == static then 
-            this:translate_collision(b, -resolve_vector.x, -resolve_vector.y)
-        else
-            this:translate_collision(a, resolve_vector.x/2, resolve_vector.y/2)
-            this:translate_collision(b, -resolve_vector.x/2, -resolve_vector.y/2)
-        end
-    end,
-
-    // Stops any overlaps between collision boxes.
-    resolve_collisions=function(this)
-        for i=0,#this.list do
-            for j=0,#this.list do
-                this:resolve_collision(i,j)
+                grid.box[i][j] = 0
             end
+            row = row.."},"
+            printh(row, 'drawings.txt')
         end
+
+        printh('},')
+
+    end
+}
+
+grid = {
+
+    offset = {x=4, y=4},
+    unit_size = 12,
+    box_size = 10,
+
+    init=function(this)
+        this.box = {
+        }
+
+        for i=1,this.box_size do
+            row = {}
+            for j=1,this.box_size do
+                row[j] = 0
+            end
+            this.box[i] = row
+        end
+
     end,
 
-    // Draw all existing collisions
-    draw_collisions=function(this)
-        for i=0,#this.list do
-            col = this.list[i]
-            rectfill(col.left, col.top, col.right, col.bottom, 3)
+    draw=function(this)
+        for i=1,#this.box do
+            for j=1,#this.box do
+                left = this.offset.x + ((i-1) * this.unit_size)
+                right = this.offset.x + ((i) * this.unit_size)
+                top = this.offset.y + ((j-1) * this.unit_size)
+                bottom = this.offset.y + ((j) * this.unit_size)
+
+                rectfill(left,top,right,bottom, this.box[i][j]);
+                //rect(left,top,right,bottom, 0);
+            end
         end
     end
 }
 
-player = {
-    
-    init=function(this)
-        collisions:add_collision(false, 64, 64, 68, 68)
-        this.collision_index = #collisions.list
-    end,
+cursor = {
+    x=1, y=1, value=0,
 
-    gravity = 0.3,
-    sum_gravity = 0,
-    apply_gravity=function(this)
-        this.sum_gravity += this.gravity
+    control_cursor=function(this,clamp)
+        nx = this.x ny = this.y
+
+        if btnp(0) then nx -= 1 this.timer = 20 end
+        if btnp(1) then nx += 1 this.timer = 20 end
+        if btnp(2) then ny -= 1 this.timer = 20 end
+        if btnp(3) then ny += 1 this.timer = 20 end
+
+        if clamp then 
+            if nx > #grid.box then nx = #grid.box end
+            if nx < 1 then nx = 1 end
+            if ny > #grid.box then ny = #grid.box end
+            if ny < 1 then ny = 1 end
+        else
+            if nx > #grid.box then nx = 1 end
+            if nx < 1 then nx = #grid.box end
+            if ny > #grid.box then ny = 1 end
+            if ny < 1 then ny = #grid.box end
+        end
         
-        collisions:translate_collision(this.collision_index, 0, this.sum_gravity)
+        this.x = nx 
+        this.y = ny
     end,
 
-    update=function(this)
-        this:apply_gravity()
+    write_cursor=function(this)
+        if btnp(4) then this.value += 1 this.timer = 20 end
+        if btn(5) then grid.box[this.x][this.y] = this.value this.timer = 20 end
     end,
 
+    update=function(this, clamp)
+        this:control_cursor(clamp)
+        this:write_cursor()
+    end,
+
+    timer = 0,
     draw=function(this)
-        print("updated "..tostring(this.collision_index), 60, 5)
+        this.timer+=1;
 
-        col = collisions.list[this.collision_index]
-        rectfill(col.left, col.top, col.right, col.bottom, 3)
+        if this.timer > 15 then
+            left = grid.offset.x + ((this.x-1) * grid.unit_size)
+            right = grid.offset.x + ((this.x) * grid.unit_size)
+            top = grid.offset.y + ((this.y-1) * grid.unit_size)
+            bottom = grid.offset.y + ((this.y) * grid.unit_size)
+
+            rectfill(left,top,right,bottom, 7);
+            rect(left,top,right,bottom, this.value);
+            
+            if this.timer > 30 then
+                this.timer = 0
+            end
+
+        end
     end
 }
 
 function _init()
-    
-    cls(4)
-    player:init()
-    collisions:add_collision(true, 20,100,120,130)
-    
+    grid:init()
 end
 
 function _update()
-    //player:update()
-cls(4)
-    collisions:resolve_collisions()
+    cursor:update(true)
+    printer:update()
 end
 
 function _draw()
-    
-    player:draw()
-    collisions:draw_collisions()
+    cls(5)
+
+    grid:draw()
+    cursor:draw()
 end
