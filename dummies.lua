@@ -73,10 +73,15 @@ cursor = {
     control_cursor=function(this,clamp)
         nx = this.x ny = this.y
 
-        if btnp(0) then nx -= 1 this.timer = 20 end
-        if btnp(1) then nx += 1 this.timer = 20 end
-        if btnp(2) then ny -= 1 this.timer = 20 end
-        if btnp(3) then ny += 1 this.timer = 20 end
+        if btn(0) then nx -= 1 this.timer = 20 end
+        if btn(1) then nx += 1 this.timer = 20 end
+        if btn(2) then ny -= 1 this.timer = 20 end
+        if btn(3) then ny += 1 this.timer = 20 end
+
+        if btnp(0,1) then nx -= 1 this.timer = 20 end
+        if btnp(1,1) then nx += 1 this.timer = 20 end
+        if btnp(2,1) then ny -= 1 this.timer = 20 end
+        if btnp(3,1) then ny += 1 this.timer = 20 end
 
         if clamp then 
             if nx > #grid.box then nx = #grid.box end
@@ -96,7 +101,12 @@ cursor = {
 
     write_cursor=function(this)
         if btnp(4) then this.value += 1 this.timer = 20 end
-        if btn(5) then grid.box[this.x][this.y] = this.value this.timer = 20 end
+        if btnp(5) then this.value -= 1 this.timer = 20 end
+
+        if this.value > 15 then this.value = 0 end
+        if this.value < 0 then this.value = 15 end
+
+        if btn(5,1) then grid.box[this.x][this.y] = this.value this.timer = 20 end
     end,
 
     update=function(this, clamp)
@@ -114,8 +124,7 @@ cursor = {
             top = grid.offset.y + ((this.y-1) * grid.unit_size)
             bottom = grid.offset.y + ((this.y) * grid.unit_size)
 
-            rectfill(left,top,right,bottom, 7);
-            rect(left,top,right,bottom, this.value);
+            rect(left - 1,top - 1,right,bottom, this.value);
             
             if this.timer > 30 then
                 this.timer = 0
