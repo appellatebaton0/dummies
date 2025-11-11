@@ -1,286 +1,89 @@
--- Puzzle Game Test
+-- 
 -- Baton0
 
-settings = {
-    pane_fill = 6,
-    pane_outline = 0
+// Lets try to make a platformer.
+
+test_box = {
+    x = 30, y = 30, sx = 8, sy = 8, layer = 1,
+
+    _draw = function(this)
+        bounding_box = {x=this.x, y=this.y, sx=this.sx, sy=this.sy}
+        bounding_box_b = {x=player.x, y=player.y, sx=player.sx, sy=player.sy}
+
+        c = 7 if collides(test_box) then c = 3 end
+        rectfill(this.x, this.y, this.x + this.sx, this.y + this.sy, c)
+    end
 }
 
-function point_to_index(x, y, width)
-    return x + (y * width)
-end
+player = {
+    x = 0, y = 0, sx = 8, sy = 8, layer = 2,
+    sn = 0, speed = 1,
 
-function index_to_point(i, width)
-    res = {}
-    j = i - 1
-    
-    res.x = (j % width)
-    res.y = flr(j / width)
-    return res
-end
+    next_position = function (this, x, y)
+        nx = x or this.x ny = y or this.y
 
-// -
+        if btn(0) then nx -= 1 end
+        if btn(1) then nx += 1 end
+        if btn(2) then ny -= 1 end
+        if btn(3) then ny += 1 end
 
-// Panes
-
-// The pane to store the puzzle solution.
-goal_pane = {
-    grid_width = 10,
-    pixel_size = 3,
-    grid = {
-        7,0,0,0,0,0,0,0,0,0,
-        0,7,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,4,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,
-        0,0,5,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,7,
-    },
-
-    x = 4, y = 4, size_x = 31, size_y = 31,
-
-    states = {
-        main = {
-            _draw = function(this, pane)
-                // Draw the contents of the grid to the screen.
-                for i=1,#pane.grid do
-                    point = index_to_point(i, pane.grid_width)
-
-                    x = point.x
-                    y = point.y
-
-                    l = pane.x + (x * pane.pixel_size) + 1
-                    t = pane.y + (y * pane.pixel_size) + 1
-                    r = pane.x + (x * pane.pixel_size) + pane.pixel_size
-                    b = pane.y + (y * pane.pixel_size) + pane.pixel_size
-                    
-                    rectfill(l, t, r, b, pane.grid[i])
-                end
-                
-
-                //rectline(pane.x, pane.y, 30, 30, 0)
-            end
-        }
-    }
-}
-
-// The pane where the player solves the puzzle.
-game_pane = {
-    grid_width = 10,
-    pixel_size = 8,
-    grid = {
-        0,0,0,0,0,0,0,0,0,0,
-        0,7,0,7,0,0,0,0,0,0,
-        0,7,0,0,0,0,0,0,0,0,
-        0,7,0,0,0,0,0,0,0,0,
-        0,7,0,0,0,5,0,0,0,0,
-        0,7,0,0,0,0,0,0,0,0,
-        0,7,0,0,0,0,0,0,5,0,
-        0,7,0,0,0,0,0,0,0,0,
-        0,7,0,0,0,0,0,0,0,0,
-        0,7,0,0,0,0,0,0,0,0,
-    },
-
-    x = 4, y = 40, size_x = 81, size_y = 81,
-
-    states = {
-        main = {
-            _draw = function(this, pane)
-                // Draw the contents of the grid to the screen.
-                for i=1,#pane.grid do
-                    j = i - 1
-
-                    x = (j % pane.grid_width)
-                    y = flr(j / pane.grid_width)
-                    l = pane.x + (x * pane.pixel_size) + 1
-                    t = pane.y + (y * pane.pixel_size) + 1
-                    r = pane.x + (x * pane.pixel_size) + pane.pixel_size
-                    b = pane.y + (y * pane.pixel_size) + pane.pixel_size
-                    
-                    rectfill(l, t, r, b, pane.grid[i])
-                end
-                
-
-                //rectline(pane.x, pane.y, 30, 30, 0)
-            end
-        }
-    },
-
-    gravity_timer = 0,
-    apply_gravity = function(this)
-        this.gravity_timer += 1
-        if this.gravity_timer >= 2 then 
-            next_grid = {}
-
-
-            for i=1,#this.grid do
-                next_grid[i] = this.grid[i]
-            end
-
-            for i=1,#this.grid do
-                if this.grid[i + this.grid_width] == 0 and this.grid[i] != 5 then 
-                    //color = this.grid[i]
-                    
-                    next_grid[i + this.grid_width] = this.grid[i]
-                    if this.grid[i] != 0 then
-                        next_grid[i] = 0
-                    end
-                end
-
-            end
-
-            for i=1,#this.grid do
-                this.grid[i] = next_grid[i]
-            end
-
-            this.gravity_timer = 0
-        end
-
+        return {x=nx, y=ny}
     end,
 
-    control_rotate = function(this)
-        dir = 0
+    control = function (this)
+        
+        next = {x = this.x, y = this.y}
 
-        if btnp(0) then dir = -1 end
-        if btnp(1) then dir = 1 end
-        if dir != 0 then
-            next_grid = {}
+        for i=1,this.speed do 
+            attempt = this:next_position(next.x, next.y)
+            attempt.sx = this.sx attempt.sy = this.sy
 
-
-            for i=1,#this.grid do
-                next_grid[i] = this.grid[i]
-            end
-
-            for i=1,#this.grid do
-                point = index_to_point(i, this.grid_width)
-
-                if dir == -1 then 
-                    next_i = point_to_index(this.grid_width - point.y, point.x, this.grid_width)
-                else
-                    next_i = point_to_index(point.y, this.grid_width - point.x, this.grid_width) - this.grid_width + 1
-                end
-
-                next_grid[next_i] = this.grid[i]
-
-            end
-
-            for i=1,#this.grid do
-                this.grid[i] = next_grid[i]
+            if not collides(attempt, this.layer) then
+                next = attempt
             end
         end
-            
+
+        this.x = next.x
+        this.y = next.y
     end,
 
-    _init = function (this)
-        for i=1,this.grid_width ^ 2 do
-            this.grid[i] = 0 if i % 4 == 0 then this.grid[i] = 1 end
+    _update = function (this)
+        this:control(this:next_position())
 
-        end
+        //this.x = next.x
+        //this.y = next.y
 
-        this:init_states()
-    end,
-    
-    _update = function(this)
-        // Update the current state.
-        this.states[this.state]:_update(this)
-
-        this:apply_gravity()
-        this:control_rotate()
-
-        //cursor:_update(this)
     end,
 
     _draw = function(this)
-        rectline(this.x, this.y, this.size_x, this.size_y, settings.pane_fill, settings.pane_outline)
+        //spr(this.sn, this.x, this.y)
+        bounding_box = {x=this.x, y=this.y, sx=this.sx, sy=this.sy}
+        bounding_box_b = {x=test_box.x, y=test_box.y, sx=test_box.sx, sy=test_box.sy}
 
-        // Draw the current state.
-        this.states[this.state]:_draw(this)
-
-        //cursor:_draw(this)
-    end,
-}
-
-cursor = {
-    x=0, y=0,
-    cache = -1,
-
-    clamp = function(this)
-        this.x = max(0, min(this.x, game_pane.grid_width - 1))
-        this.y = max(0, min(this.y, game_pane.grid_width - 1))
-    end,
-
-    _update = function(this, pane)
-        if btnp(0) then this.x -= 1 end
-        if btnp(1) then this.x += 1 end
-        if btnp(2) then this.y -= 1 end
-        if btnp(3) then this.y += 1 end
-
-        this:clamp()
-
-        if btnp(4) then
-            i = point_to_index(this.x, this.y, pane.grid_width) + 1
-
-            if this.cache == -1 then
-                if  pane.grid[i] != 0 then
-                
-
-                    this.cache = pane.grid[i]
-                    pane.grid[i] = 0
-                end
-            elseif pane.grid[i] == 0 then
-                pane.grid[i] = this.cache
-                this.cache = -1
-            end
-        end
-    end,
-
-    _draw = function (this, pane)
-        l = pane.x + (this.x * pane.pixel_size) 
-        t = pane.y + (this.y * pane.pixel_size)
-        r = pane.x + (this.x * pane.pixel_size) + pane.pixel_size + 1
-        b = pane.y + (this.y * pane.pixel_size) + pane.pixel_size + 1
-
-        rect(l, t, r, b, 9)
+        c = 7 if collides(this) then c = 3 end
+        rectfill(this.x, this.y, this.x + this.sx, this.y + this.sy, c)
     end
 }
-
 
 function _init()
-    
-    // Inherit the pane as, well, panes.
-    inherit({
-        game_pane,
-        goal_pane
-    }, pane, true, function(target)
-        // After inheritance, add it to the panes.
-        panes[pane_value] = target
-        pane_value += 1
-    end)
-
-    // Initialize the panes.
-    for i, pane in pairs(panes) do 
-        pane:_init()
-    end
+    draw_call   = {player, test_box}
+    update_call = {player}
+    collision_objects = {player, test_box}
 end
 
 function _update()
-
-    // Update the panes.
-    for i, pane in pairs(panes) do 
-        pane:_update()
+    for i, object in pairs(update_call) do
+        object:_update()
     end
 
 end
 
 function _draw()
-    cls(7)
+    cls(0)
+    
 
-    // Draw the panes.
-    for i, pane in pairs(panes) do 
-        pane:_draw()
+    for i, object in pairs(draw_call) do
+        object:_draw()
     end
 
 end
