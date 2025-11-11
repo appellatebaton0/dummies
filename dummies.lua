@@ -142,7 +142,11 @@ game_pane = {
     end,
 
     control_rotate = function(this)
-        if btnp(5) then
+        dir = 0
+
+        if btnp(0) then dir = -1 end
+        if btnp(1) then dir = 1 end
+        if dir != 0 then
             next_grid = {}
 
 
@@ -153,7 +157,11 @@ game_pane = {
             for i=1,#this.grid do
                 point = index_to_point(i, this.grid_width)
 
-                next_i = point_to_index(this.grid_width - point.y, point.x, this.grid_width) + 1
+                if dir == -1 then 
+                    next_i = point_to_index(this.grid_width - point.y, point.x, this.grid_width)
+                else
+                    next_i = point_to_index(point.y, this.grid_width - point.x, this.grid_width) - this.grid_width + 1
+                end
 
                 next_grid[next_i] = this.grid[i]
 
@@ -182,7 +190,7 @@ game_pane = {
         this:apply_gravity()
         this:control_rotate()
 
-        cursor:_update(this)
+        //cursor:_update(this)
     end,
 
     _draw = function(this)
@@ -191,7 +199,7 @@ game_pane = {
         // Draw the current state.
         this.states[this.state]:_draw(this)
 
-        cursor:_draw(this)
+        //cursor:_draw(this)
     end,
 }
 
