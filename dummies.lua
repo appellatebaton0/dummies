@@ -11,12 +11,12 @@ test_box = {
         bounding_box_b = {x=player.x, y=player.y, sx=player.sx, sy=player.sy}
 
         c = 7 if collides(test_box) then c = 3 end
-        rectfill(this.x, this.y, this.x + this.sx, this.y + this.sy, c)
+        crectfill(this.x, this.y, this.x + this.sx, this.y + this.sy, c)
     end
 }
 
 player = {
-    x = 0, y = 0, sx = 12, sy = 12, layer = 2,
+    x = 0, y = 0, sx = 8, sy = 8, layer = 2,
     sn = 0, speed = 1,
 
     control = function (this)
@@ -47,13 +47,15 @@ player = {
 
     _draw = function(this)
         c = 7 if collides(this) then c = 3 end
-        rectfill(this.x, this.y, this.x + this.sx, this.y + this.sy, c)
+        crectfill(this.x, this.y, this.x + this.sx, this.y + this.sy, c)
     end
 }
 
 function _init()
+    camera.follow_object = player
+
     draw_call   = {player, test_box}
-    update_call = {player}
+    update_call = {player, camera}
     collision_objects = {player, test_box}
 end
 
