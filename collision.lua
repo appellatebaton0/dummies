@@ -37,3 +37,17 @@ function collides(box_a, exclude_layer)
 
     return false
 end
+
+try_position = function(last, next_x, next_y)
+    attempt = {
+        x  = next_x,  y  = next_y,
+        sx = last.sx, sy = last.sy,
+        layer = last.layer
+    }
+
+    if not collides(attempt) then
+        return attempt
+    end
+
+    return last
+end
