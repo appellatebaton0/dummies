@@ -14,6 +14,12 @@ function crectfill(left, top, right, bottom, fill)
     end
 end
 
+function cspr(n, x, y, flip)
+    x -= camera.x y -= camera.y
+
+    spr(n, x, y, 1, 1,flip)
+end
+
 camera = {
     x = 0, y = 0,
     off_x = 60, off_y = 60,

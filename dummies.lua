@@ -5,7 +5,7 @@
 
 player1 = {
     x = 26, y = 20, sx = 7, sy = 7, layer = 1,
-    sn = 0, speed = 2,
+    sn = 0, speed = 2, flip = false,
 
     control = function (this)
         for i=1,this.speed do 
@@ -13,8 +13,8 @@ player1 = {
 
             // Attempt to move in the desired directions, but only do so
             // If theres nothing in the way.
-            if btn(0) then next_x = try_position(this, next_x - 1, next_y).x end
-            if btn(1) then next_x = try_position(this, next_x + 1, next_y).x end
+            if btn(0) then next_x = try_position(this, next_x - 1, next_y).x this.flip = true end
+            if btn(1) then next_x = try_position(this, next_x + 1, next_y).x this.flip = false end
             if btn(2) then next_y = try_position(this, next_x, next_y - 1).y end
             if btn(3) then next_y = try_position(this, next_x, next_y + 1).y end
 
@@ -32,8 +32,8 @@ player1 = {
     end,
 
     _draw = function(this)
-        
-        crectfill(this.x, this.y, this.x + this.sx, this.y + this.sy, 5)
+        cspr(this.sn, this.x, this.y, this.flip)
+        //crectfill(this.x, this.y, this.x + this.sx, this.y + this.sy, 5)
     end
 }
 
@@ -47,8 +47,8 @@ player2 = {
 
             // Attempt to move in the desired directions, but only do so
             // If theres nothing in the way.
-            if btn(0) then next_x = try_position(this, next_x - 1, next_y).x end
-            if btn(1) then next_x = try_position(this, next_x + 1, next_y).x end
+            if btn(0) then next_x = try_position(this, next_x - 1, next_y).x this.flip = true end
+            if btn(1) then next_x = try_position(this, next_x + 1, next_y).x this.flip = false end
             if btn(2) then next_y = try_position(this, next_x, next_y - 1).y end
             if btn(3) then next_y = try_position(this, next_x, next_y + 1).y end
 
@@ -70,8 +70,7 @@ player2 = {
     end,
 
     _draw = function(this)
-        
-        crectfill(this.x, this.y, this.x + this.sx, this.y + this.sy, 5)
+        cspr(this.sn, this.x, this.y, this.flip)
     end
 }
 
@@ -89,6 +88,7 @@ end
 
 function _update()
 
+    // Switching between players
     if btnp(4) then
         if active_player == player1 then active_player = player2
     elseif active_player == player2 then active_player = player1 end
@@ -109,10 +109,6 @@ function _draw()
 
     for i, object in pairs(draw_call) do
         object:_draw()
-    end
-
-    for i, object in pairs(collision_objects) do
-        crectfill(object.x, object.y, object.x + object.sx, object.y + object.sy, 7)
     end
 
 end
