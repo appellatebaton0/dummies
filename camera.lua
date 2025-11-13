@@ -18,11 +18,18 @@ camera = {
     x = 0, y = 0,
     off_x = 60, off_y = 60,
     follow_object = -1,
+    follow_speed = 5,
 
     _update = function(this)
         if this.follow_object != -1 then
-            this.x = this.follow_object.x - this.off_x
-            this.y = this.follow_object.y - this.off_y
+            x_change = (this.follow_object.x - this.off_x) - this.x
+            y_change = (this.follow_object.y - this.off_y) - this.y
+
+            x_change = max(-this.follow_speed, min(x_change, this.follow_speed))
+            y_change = max(-this.follow_speed, min(y_change, this.follow_speed))
+
+            this.x += x_change
+            this.y += y_change
         end
     end
 }
