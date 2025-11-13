@@ -7,7 +7,7 @@ function crectfill(left, top, right, bottom, fill)
     left -= camera.x right -= camera.x
     top -= camera.y bottom -= camera.y
 
-    if fill then
+    if fill != nil then
         rectfill(left, top, right, bottom, fill)
     else
         rectfill(left, top, right, bottom)

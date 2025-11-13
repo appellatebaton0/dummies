@@ -16,8 +16,8 @@ test_box = {
 }
 
 player = {
-    x = 0, y = 0, sx = 8, sy = 8, layer = 2,
-    sn = 0, speed = 1,
+    x = 40, y = 20, sx = 7, sy = 7, layer = 2,
+    sn = 0, speed = 2,
 
     control = function (this)
         for i=1,this.speed do 
@@ -46,17 +46,19 @@ player = {
     end,
 
     _draw = function(this)
-        c = 7 if collides(this) then c = 3 end
-        crectfill(this.x, this.y, this.x + this.sx, this.y + this.sy, c)
+        
+        crectfill(this.x, this.y, this.x + this.sx, this.y + this.sy, 5)
     end
 }
 
 function _init()
     camera.follow_object = player
 
-    draw_call   = {player, test_box}
+    draw_call   = {player}
     update_call = {player, camera}
-    collision_objects = {player, test_box}
+    collision_objects = {player}
+
+    world:load_level(1)
 end
 
 function _update()
@@ -72,6 +74,10 @@ function _draw()
 
     for i, object in pairs(draw_call) do
         object:_draw()
+    end
+
+    for i, object in pairs(collision_objects) do
+        crectfill(object.x, object.y, object.x + object.sx, object.y + object.sy, 7)
     end
 
 end
