@@ -33,7 +33,6 @@ player1 = {
 
     _draw = function(this)
         cspr(this.sn, this.x, this.y, this.flip)
-        //crectfill(this.x, this.y, this.x + this.sx, this.y + this.sy, 5)
     end
 }
 
@@ -80,11 +79,10 @@ function sort_draw_call()
 
     priority_index = 0
 
-    in_loop = true
-    while in_loop do
+    while true do
 
-        printh(add_index.. " vs "..#draw_call, 'log.txt')
-        in_loop = add_index != #draw_call
+        if add_index == #draw_call + 1 then break end
+        
         for i,obj in pairs(draw_call) do
             if obj.draw_priority == (priority_index or nil) then
                 new[add_index] = obj
@@ -93,8 +91,6 @@ function sort_draw_call()
         end
         priority_index += 1
     end
-
-    printh("new_len: "..#new.. " draw_len: "..#draw_call, 'log.txt')
 
     for i=1,#draw_call do
         
@@ -118,8 +114,8 @@ function _update()
 
     // Switching between players
     if btnp(4) then
-        if active_player == player1 then active_player = player2
-    elseif active_player == player2 then active_player = player1 end
+        if active_player == player1 then active_player = player2 player1.draw_priority = 2 player2.draw_priority = 3 sort_draw_call()
+    elseif active_player == player2 then active_player = player1 player1.draw_priority = 3 player2.draw_priority = 2 sort_draw_call()end
     end
 
     camera.follow_object = active_player
