@@ -1,18 +1,69 @@
 // Provides a grid to host levels on.
 
+tile_functionalities = {
+    { -- Wall tiles
+        new = function(this, obj)
+            obj = obj or {}   -- create object if user does not provide one
+            setmetatable(obj, {__index = this})
+            return obj
+        end,
+
+        _init = function (this, x, y, v)
+            this.x = x this.y = y
+            this.sx = 7 this.sy = 7
+
+            this.sn = v
+            this.layer = v
+
+            this.draw_priority = 0
+
+            printh("x: "..this.x.." y: "..this.y, 'log.txt')
+        end,
+
+        _draw = function(this)
+            cspr(this.sn, this.x, this.y)
+            
+        end
+    },
+    { -- Goals
+        new = function(this, obj)
+            obj = obj or {}   -- create object if user does not provide one
+            setmetatable(obj, {__index = this})
+            return obj
+        end,
+
+        _init = function (this, x, y, v)
+            this.x = x this.y = y
+            this.sx = 7 this.sy = 7
+
+            this.sn = v
+            this.layer = -v
+
+            this.draw_priority = 0
+
+            printh("x: "..this.x.." y: "..this.y, 'log.txt')
+        end,
+
+        _draw = function(this)
+            cspr(this.sn, this.x, this.y)
+            
+        end
+    }
+}
+
 level_bank = {
     {
         level = {
-            7,7,7,7,7,7,7,7,7,7,
-            7,0,0,0,0,0,0,0,0,7,
-            7,0,7,0,0,0,0,7,0,7,
-            7,0,0,0,0,0,0,0,0,7,
-            7,0,0,0,7,7,0,0,0,7,
-            7,0,7,0,0,0,0,7,0,7,
-            7,0,0,7,7,7,7,0,0,7,
-            7,0,0,0,0,0,0,0,0,7,
-            7,0,0,0,0,0,0,0,0,7,
-            7,7,7,7,7,7,7,7,7,7,
+            1,1,1,1,1,1,1,1,1,1,
+            1,0,0,0,0,0,0,0,0,1,
+            1,0,2,0,0,0,0,0,0,1,
+            1,0,0,0,0,0,0,0,0,1,
+            1,0,0,0,0,0,0,0,0,1,
+            1,0,0,0,0,0,0,0,0,1,
+            1,0,0,0,0,0,0,0,0,1,
+            1,0,0,0,0,0,0,0,0,1,
+            1,0,0,0,0,0,0,0,0,1,
+            1,1,1,1,1,1,1,1,1,1,
         },
         width = 10
     }
@@ -31,17 +82,17 @@ world = {
         add_index = #collision_objects + 1
         draw_index = #draw_call + 1
         for i,value in pairs(level) do
-            if value == 7 do
-                
-                new = {
-                    x = ((i - 1) % width) * (this.pixels_per_unit + 1), sx = this.pixels_per_unit,
-                    y = flr((i - 1) / width) * (this.pixels_per_unit + 1), sy = this.pixels_per_unit,
-                    layer = this.layer,
+            if value != 0 do
 
-                    _draw = function(this)
-                        crectfill(this.x, this.y, this.x + this.sx, this.y + this.sy, 7)
-                    end
-                }
+                x = ((i - 1) % width) * (this.pixels_per_unit + 1)
+                y = flr((i - 1) / width) * (this.pixels_per_unit + 1)
+                printh('should be: '..x..','..y, 'log.txt')
+
+                new = {}
+                setmetatable(new, {__index =tile_functionalities[flr(value)]})
+                new:_init(x, y, value)
+
+                
 
                 collision_objects[add_index] = new
                 add_index += 1

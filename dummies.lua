@@ -4,8 +4,8 @@
 // Lets try to make a platformer.
 
 player1 = {
-    x = 26, y = 20, sx = 7, sy = 7, layer = 1,
-    sn = 0, speed = 2, flip = false,
+    x = 26, y = 20, sx = 7, sy = 7, layer = 0,
+    sn = 0, speed = 2, draw_priority = 2,
 
     control = function (this)
         for i=1,this.speed do 
@@ -38,8 +38,8 @@ player1 = {
 }
 
 player2 = {
-    x = 40, y = 20, sx = 7, sy = 7, layer = 2,
-    sn = 0, speed = 2,
+    x = 40, y = 20, sx = 7, sy = 7, layer = 0,
+    sn = 0, speed = 2, draw_priority = 2,
 
     control = function (this)
         for i=1,this.speed do 
@@ -55,7 +55,6 @@ player2 = {
             this.x = next_x
             this.y = next_y
         end
-
         
     end,
 
@@ -74,6 +73,35 @@ player2 = {
     end
 }
 
+function sort_draw_call() 
+
+    new = {}
+    add_index = 1
+
+    priority_index = 0
+
+    in_loop = true
+    while in_loop do
+
+        printh(add_index.. " vs "..#draw_call, 'log.txt')
+        in_loop = add_index != #draw_call
+        for i,obj in pairs(draw_call) do
+            if obj.draw_priority == (priority_index or nil) then
+                new[add_index] = obj
+                add_index += 1
+            end
+        end
+        priority_index += 1
+    end
+
+    printh("new_len: "..#new.. " draw_len: "..#draw_call, 'log.txt')
+
+    for i=1,#draw_call do
+        
+        draw_call[i] = new[i]
+    end
+
+end
 
 
 function _init()
@@ -99,13 +127,12 @@ function _update()
     for i, object in pairs(update_call) do
         object:_update()
     end
-
-
 end
 
 function _draw()
     cls(0)
     
+    sort_draw_call()
 
     for i, object in pairs(draw_call) do
         object:_draw()

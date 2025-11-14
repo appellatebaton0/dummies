@@ -15,6 +15,8 @@ function crectfill(left, top, right, bottom, fill)
 end
 
 function cspr(n, x, y, flip)
+    if flip == nil then flip = false end
+
     x -= camera.x y -= camera.y
 
     spr(n, x, y, 1, 1,flip)

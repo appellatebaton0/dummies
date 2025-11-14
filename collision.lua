@@ -5,7 +5,8 @@ collision_objects = {}
 // Return if two box objects, formatted x,y,sx,sy,layer are overlapping.
 function colliding_boxes(box_a, box_b, exclude_layer)
 
-    if box_b.layer == exclude_layer then return false end
+    // If its the exclude layer or in a negative [read only] layer, no.
+    if box_b.layer == exclude_layer or box_b.layer < 0 then return false end
 
     a = {
         left   = box_a.x,
