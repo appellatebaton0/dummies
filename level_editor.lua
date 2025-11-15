@@ -11,25 +11,35 @@ function get_level_size()
     if a > b then return a else return b end
 end
 
+function draw_level()
+    for i, row in pairs(level) do
+        for j, value in pairs(row) do
+            cspr(value, (i-1) * pixels_per_unit, (j-1) * pixels_per_unit)
+        end
+    end
+end
+
 cursor = {
     ix = 1, iy = 1,
-    x = 0, y = 0,
+    x = 0, y = 0, i = 1,
 
     write = function(this)
         -- Add any necessary rows  
+        m = max(this.ix, this.iy)
         printh("level: "..#level, 'log.txt')
         printh("iy: "..this.iy, 'log.txt')
-        while not (#level >= this.iy + 1) do
+        while not (#level > m) do
             level[#level + 1] = {0}
         end
 
         -- Add any necessary columns
         for i=1, #level do
-            while #level[i] < this.ix + 1 do
+            while #level[i] <= m do
                 level[i][#level[i] + 1] = 0
             end
         end
 
+        level[this.ix + 1][this.iy + 1] = this.i
         
     end,
 
@@ -76,6 +86,7 @@ function _draw()
 
 
     cursor:_draw()
+    draw_level()
 
     ls = get_level_size()
     crect(-1, -1, (ls * pixels_per_unit) + 1, (ls * pixels_per_unit) + 1)
