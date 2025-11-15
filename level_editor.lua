@@ -1,5 +1,5 @@
 
-pixels_per_unit = 7
+pixels_per_unit = 8
 
 level = {
     {0}
@@ -14,7 +14,7 @@ end
 function draw_level()
     for i, row in pairs(level) do
         for j, value in pairs(row) do
-            cspr(value, (i-1) * pixels_per_unit, (j-1) * pixels_per_unit)
+            cspr(flr(value), (i-1) * pixels_per_unit, (j-1) * pixels_per_unit)
         end
     end
 end
@@ -22,6 +22,7 @@ end
 cursor = {
     ix = 1, iy = 1,
     x = 0, y = 0, i = 1,
+
 
     write = function(this)
         -- Add any necessary rows  
@@ -44,6 +45,7 @@ cursor = {
     end,
 
     control = function (this)
+        -- Moving the cursor
         if btnp(0) then this.ix -= 1 end
         if btnp(1) then this.ix += 1 end
         if btnp(2) then this.iy -= 1 end
@@ -52,7 +54,15 @@ cursor = {
         if this.ix < 0 then this.ix = 0 end
         if this.iy < 0 then this.iy = 0 end
 
-        if btnp(4) then this:write() end
+        -- Changing the current index
+        if btnp(5,1) then this.i -= 1 end
+        if btnp(4,1) then this.i += 1 end
+
+        if this.i < 0  then this.i = 15 end
+        if this.i > 15 then this.i = 0 end
+
+        -- Writing
+        if btn(4) then this:write() end
     end,
 
     _update = function (this)
@@ -62,7 +72,7 @@ cursor = {
     _draw = function (this)
         this.x = this.ix * pixels_per_unit
         this.y = this.iy * pixels_per_unit
-        crect(this.x - 1, this.y - 1, this.x + pixels_per_unit + 1, this.y + pixels_per_unit + 1, 7)
+        crect(this.x - 1, this.y - 1, this.x + pixels_per_unit, this.y + pixels_per_unit, 7)
     end
 }
 
@@ -89,7 +99,7 @@ function _draw()
     draw_level()
 
     ls = get_level_size()
-    crect(-1, -1, (ls * pixels_per_unit) + 1, (ls * pixels_per_unit) + 1)
+    crect(-1, -1, (ls * pixels_per_unit), (ls * pixels_per_unit))
 
-    print("I: "..cursor.ix..','..cursor.iy.." size: "..ls, 3, 120, 7)
+    print("p: "..cursor.ix..','..cursor.iy.." i: "..cursor.i.." size: "..ls, 3, 120, 7)
 end
