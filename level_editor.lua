@@ -2,7 +2,7 @@
 pixels_per_unit = 7
 
 level = {
-    {}
+    {0}
 }
 
 function get_level_size()
@@ -16,7 +16,21 @@ cursor = {
     x = 0, y = 0,
 
     write = function(this)
+        -- Add any necessary rows  
+        printh("level: "..#level, 'log.txt')
+        printh("iy: "..this.iy, 'log.txt')
+        while not (#level >= this.iy + 1) do
+            level[#level + 1] = {0}
+        end
 
+        -- Add any necessary columns
+        for i=1, #level do
+            while #level[i] < this.ix + 1 do
+                level[i][#level[i] + 1] = 0
+            end
+        end
+
+        
     end,
 
     control = function (this)
@@ -64,8 +78,7 @@ function _draw()
     cursor:_draw()
 
     ls = get_level_size()
-    printh("ls: "..ls, 'log.txt')
     crect(-1, -1, (ls * pixels_per_unit) + 1, (ls * pixels_per_unit) + 1)
 
-    print(cursor.ix..','..cursor.iy, 3, 120, 7)
+    print("I: "..cursor.ix..','..cursor.iy.." size: "..ls, 3, 120, 7)
 end
