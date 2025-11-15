@@ -14,6 +14,19 @@ function crectfill(left, top, right, bottom, fill)
     end
 end
 
+// Rect but translated by the camera.
+function crect(left, top, right, bottom, fill)
+
+    left -= camera.x right -= camera.x
+    top -= camera.y bottom -= camera.y
+
+    if fill != nil then
+        rect(left, top, right, bottom, fill)
+    else
+        rect(left, top, right, bottom)
+    end
+end
+
 function cspr(n, x, y, flip)
     if flip == nil then flip = false end
 
