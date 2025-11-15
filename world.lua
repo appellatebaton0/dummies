@@ -7,16 +7,9 @@ function inherit(from, obj)
 end
 
 tile_functionalities = {
-    { -- Wall tiles
+    { -- Wall tiles (1)
 
-        _init = function (this)
-            this.sx = 7 this.sy = 7
-
-            this.sn = this.value
-            this.layer = this.value
-
-            this.draw_priority = 0
-        end,
+        _init = function (this) end,
 
         _ready = function(this, world) end,
 
@@ -26,15 +19,10 @@ tile_functionalities = {
 
         _update = function(this) end
     },
-    { -- Goals
+    { -- Goals (2)
 
         _init = function (this)
-            this.sx = 7 this.sy = 7
-
-            this.sn = this.value
             this.layer = -this.value
-
-            this.draw_priority = 0
         end,
 
         _ready = function(this, world) end,
@@ -48,17 +36,12 @@ tile_functionalities = {
             if collides(this) then world:unload_level() end
         end
     },
-    { -- Buttons
+    { -- Buttons (3.?)
 
         _init = function (this)
-            this.sx = 7 this.sy = 7
-
-            this.sn = this.value
             this.layer = -flr(this.value)
 
             this.interaction_id = this.value - flr(this.value)
-
-            this.draw_priority = 0
         end,
 
         _ready = function(this, world)
@@ -79,16 +62,9 @@ tile_functionalities = {
             if this.down then this.sn = 3 + 16 else this.sn = 3 end
         end
     },
-    { -- Doors
+    { -- Doors (4.?)
         _init = function (this)
-            this.sx = 7 this.sy = 7
-
-            this.sn = this.value
-            this.layer = this.value
-
             this.interaction_id = this.value - flr(this.value)
-
-            this.draw_priority = 0
         end,
 
         _ready = function(this, world)
@@ -117,24 +93,56 @@ tile_functionalities = {
 
             end
         end
+    },
+    { -- Spawn Point (5.?)
+        _init = function (this)
+            this.player_id = (this.value - flr(this.value)) * 10
+            this.layer = -this.value
+        end,
+
+        _ready = function(this, world)
+            if this.player_id > 1 then 
+                 player2.x = this.x 
+                player2.y = this.y 
+            elseif this.player_id > 0 then 
+                player1.x = this.x 
+                player1.y = this.y 
+            end
+        end,
+
+        _draw = function(this)
+            cspr(this.sn, this.x, this.y)
+        end,
+
+        _update = function(this) 
+            if this.pair_obj != nil then
+
+                if this.pair_obj.down then 
+                    this.layer = -4 
+                    this.sn = 4 + 16
+                else 
+                    this.layer = 4 
+                    this.sn = 4
+                end
+
+            end
+        end
     }
 }
 
 level_bank = {
     {
-        level = {
             1,1,1,1,1,1,1,1,1,1,
             1,0,3.1,0,4.1,0,0,0,0,1,
             1,0,2,0,0,0,0,0,0,1,
+            1,0,0,0,0,0,5.2,0,0,1,
             1,0,0,0,0,0,0,0,0,1,
             1,0,0,0,0,0,0,0,0,1,
-            1,0,0,0,0,0,0,0,0,1,
-            1,0,0,0,0,0,0,0,0,1,
+            1,0,0,0,0,5.1,0,0,0,1,
             1,0,0,0,0,0,0,0,0,1,
             1,0,0,0,0,0,0,0,0,1,
             1,1,1,1,1,1,1,1,1,1,
-        },
-        width = 10
+            10,
     }
 }
 
@@ -145,8 +153,8 @@ world = {
     layer = 3,
 
     load_level = function(this, level_id)
-        level = level_bank[level_id].level
-        width = level_bank[level_id].width
+        level = level_bank[level_id]
+        width = level_bank[level_id][#level_bank[level_id]]
 
         obj_index = #this.level_objects + 1
         collide_index = #collision_objects + 1
@@ -154,13 +162,18 @@ world = {
         update_index = #update_call + 1
 
         for i,value in pairs(level) do
-            if value != 0 do
+            if value != 0 and value < #tile_functionalities do
 
                 new = inherit(tile_functionalities[flr(value)])
 
                 new.x = ((i - 1) % width) * (this.pixels_per_unit + 1)
                 new.y = flr((i - 1) / width) * (this.pixels_per_unit + 1)
                 
+                new.sx = 7 new.sy = 7
+                new.sn = value new.layer = value
+
+                new.draw_priority = 0
+
                 new.level_object = true
 
                 new.value = value
