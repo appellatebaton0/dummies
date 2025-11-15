@@ -44,7 +44,9 @@ tile_functionalities = {
             
         end,
 
-        _update = function(this) end
+        _update = function(this) 
+            if collides(this) then world:unload_level() end
+        end
     },
     { -- Buttons
 
@@ -60,13 +62,10 @@ tile_functionalities = {
         end,
 
         _ready = function(this, world)
-            for i, object in pairs(world) do 
-
-                if not object.value == this.value then
-                    if object.interaction_id == this.interaction_id then
-                        printh("found!", 'log.txt')
-                        this.pair_obj = object
-                    end
+            for i, object in pairs(world) do
+                if object.value != this.value and 
+                   object.interaction_id == this.interaction_id then
+                    this.pair_obj = object
                 end
             end
         end,
@@ -90,23 +89,13 @@ tile_functionalities = {
             this.interaction_id = this.value - flr(this.value)
 
             this.draw_priority = 0
-
-            
         end,
 
         _ready = function(this, world)
-            printh("attempt", "log.txt")
-            for i, object in pairs(world) do 
-                printh(" - ", 'log.txt')
-                printh("checking "..object.value..' with '..this.value, 'log.txt')
-                if object.interaction_id != nil then
-                printh("checking "..object.interaction_id..' with '..this.interaction_id, 'log.txt')
-                end
-                if object.value != this.value then
-                    if object.interaction_id == this.interaction_id then
-                        printh("found!", 'log.txt')
-                        this.pair_obj = object
-                    end
+            for i, object in pairs(world) do
+                if object.value != this.value and 
+                   object.interaction_id == this.interaction_id then
+                    this.pair_obj = object
                 end
             end
         end,
@@ -116,11 +105,8 @@ tile_functionalities = {
         end,
 
         _update = function(this) 
-            if this.pair_obj != nil then 
-                if this.pair_obj.down then open = -4 else open = 4 end
+            if this.pair_obj != nil then
 
-                //printh("layer: "..this.layer.." because "..this.pair_obj.down, 'log.txt')
-                
                 if this.pair_obj.down then 
                     this.layer = -4 
                     this.sn = 4 + 16
@@ -128,6 +114,7 @@ tile_functionalities = {
                     this.layer = 4 
                     this.sn = 4
                 end
+
             end
         end
     }
@@ -174,6 +161,8 @@ world = {
                 new.x = ((i - 1) % width) * (this.pixels_per_unit + 1)
                 new.y = flr((i - 1) / width) * (this.pixels_per_unit + 1)
                 
+                new.level_object = true
+
                 new.value = value
                 new:_init()
 
@@ -202,6 +191,13 @@ world = {
     end,
 
     unload_level = function(this)
+        -- Remove the objects from the call, then clear the object queue
+        for i, obj in pairs(this.level_objects) do
+            del(collision_objects, obj)
+            del(draw_call, obj)
+            del(update_call, obj)
+        end
 
+        this.level_objects = {}
     end
 }
