@@ -1,52 +1,134 @@
 // Provides a grid to host levels on.
 
+function inherit(from, obj)
+    obj = obj or {}
+    setmetatable(obj, {__index = from})
+    return obj
+end
+
 tile_functionalities = {
     { -- Wall tiles
-        new = function(this, obj)
-            obj = obj or {}   -- create object if user does not provide one
-            setmetatable(obj, {__index = this})
-            return obj
-        end,
 
-        _init = function (this, x, y, v)
-            this.x = x this.y = y
+        _init = function (this)
             this.sx = 7 this.sy = 7
 
-            this.sn = v
-            this.layer = v
+            this.sn = this.value
+            this.layer = this.value
 
             this.draw_priority = 0
-
-            printh("x: "..this.x.." y: "..this.y, 'log.txt')
         end,
+
+        _ready = function(this, world) end,
 
         _draw = function(this)
             cspr(this.sn, this.x, this.y)
-            
-        end
+        end,
+
+        _update = function(this) end
     },
     { -- Goals
-        new = function(this, obj)
-            obj = obj or {}   -- create object if user does not provide one
-            setmetatable(obj, {__index = this})
-            return obj
-        end,
 
-        _init = function (this, x, y, v)
-            this.x = x this.y = y
+        _init = function (this)
             this.sx = 7 this.sy = 7
 
-            this.sn = v
-            this.layer = -v
+            this.sn = this.value
+            this.layer = -this.value
 
             this.draw_priority = 0
-
-            printh("x: "..this.x.." y: "..this.y, 'log.txt')
         end,
+
+        _ready = function(this, world) end,
 
         _draw = function(this)
             cspr(this.sn, this.x, this.y)
             
+        end,
+
+        _update = function(this) end
+    },
+    { -- Buttons
+
+        _init = function (this)
+            this.sx = 7 this.sy = 7
+
+            this.sn = this.value
+            this.layer = -flr(this.value)
+
+            this.interaction_id = this.value - flr(this.value)
+
+            this.draw_priority = 0
+        end,
+
+        _ready = function(this, world)
+            for i, object in pairs(world) do 
+
+                if not object.value == this.value then
+                    if object.interaction_id == this.interaction_id then
+                        printh("found!", 'log.txt')
+                        this.pair_obj = object
+                    end
+                end
+            end
+        end,
+
+        _draw = function(this)
+            cspr(this.sn, this.x, this.y)
+        end,
+
+        _update = function(this) 
+            this.down = collides(this)
+            if this.down then this.sn = 3 + 16 else this.sn = 3 end
+        end
+    },
+    { -- Doors
+        _init = function (this)
+            this.sx = 7 this.sy = 7
+
+            this.sn = this.value
+            this.layer = this.value
+
+            this.interaction_id = this.value - flr(this.value)
+
+            this.draw_priority = 0
+
+            
+        end,
+
+        _ready = function(this, world)
+            printh("attempt", "log.txt")
+            for i, object in pairs(world) do 
+                printh(" - ", 'log.txt')
+                printh("checking "..object.value..' with '..this.value, 'log.txt')
+                if object.interaction_id != nil then
+                printh("checking "..object.interaction_id..' with '..this.interaction_id, 'log.txt')
+                end
+                if object.value != this.value then
+                    if object.interaction_id == this.interaction_id then
+                        printh("found!", 'log.txt')
+                        this.pair_obj = object
+                    end
+                end
+            end
+        end,
+
+        _draw = function(this)
+            cspr(this.sn, this.x, this.y)
+        end,
+
+        _update = function(this) 
+            if this.pair_obj != nil then 
+                if this.pair_obj.down then open = -4 else open = 4 end
+
+                //printh("layer: "..this.layer.." because "..this.pair_obj.down, 'log.txt')
+                
+                if this.pair_obj.down then 
+                    this.layer = -4 
+                    this.sn = 4 + 16
+                else 
+                    this.layer = 4 
+                    this.sn = 4
+                end
+            end
         end
     }
 }
@@ -55,7 +137,7 @@ level_bank = {
     {
         level = {
             1,1,1,1,1,1,1,1,1,1,
-            1,0,0,0,0,0,0,0,0,1,
+            1,0,3.1,0,4.1,0,0,0,0,1,
             1,0,2,0,0,0,0,0,0,1,
             1,0,0,0,0,0,0,0,0,1,
             1,0,0,0,0,0,0,0,0,1,
@@ -79,27 +161,43 @@ world = {
         level = level_bank[level_id].level
         width = level_bank[level_id].width
 
-        add_index = #collision_objects + 1
+        obj_index = #this.level_objects + 1
+        collide_index = #collision_objects + 1
         draw_index = #draw_call + 1
+        update_index = #update_call + 1
+
         for i,value in pairs(level) do
             if value != 0 do
 
-                x = ((i - 1) % width) * (this.pixels_per_unit + 1)
-                y = flr((i - 1) / width) * (this.pixels_per_unit + 1)
-                printh('should be: '..x..','..y, 'log.txt')
+                new = inherit(tile_functionalities[flr(value)])
 
-                new = {}
-                setmetatable(new, {__index =tile_functionalities[flr(value)]})
-                new:_init(x, y, value)
+                new.x = ((i - 1) % width) * (this.pixels_per_unit + 1)
+                new.y = flr((i - 1) / width) * (this.pixels_per_unit + 1)
+                
+                new.value = value
+                new:_init()
+
+                -- Add to the object list
+                this.level_objects[obj_index] = new
+                obj_index += 1
 
                 
+                -- Add to the collision list
+                collision_objects[collide_index] = new
+                collide_index += 1
 
-                collision_objects[add_index] = new
-                add_index += 1
-
+                -- Add to the draw list
                 draw_call[draw_index] = new
                 draw_index += 1
+
+                -- Add to the update call
+                update_call[update_index] = new
+                update_index += 1
             end
+        end
+
+        for i, object in pairs(this.level_objects) do
+            object:_ready(this.level_objects)
         end
     end,
 
