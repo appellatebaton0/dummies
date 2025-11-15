@@ -33,7 +33,11 @@ tile_functionalities = {
         end,
 
         _update = function(this) 
-            if collides(this) then world:unload_level() end
+            if collides(this) then 
+                world:unload_level() 
+                current_level += 1
+                world:load_level()
+            end
         end
     },
     { -- Buttons (3.?)
@@ -132,19 +136,27 @@ tile_functionalities = {
 
 level_bank = {
     {
-            1,1,1,1,1,1,1,1,1,1,
-            1,0,3.1,0,4.1,0,0,0,0,1,
-            1,0,2,0,0,0,0,0,0,1,
-            1,0,0,0,0,0,5.2,0,0,1,
-            1,0,0,0,0,0,0,0,0,1,
-            1,0,0,0,0,0,0,0,0,1,
-            1,0,0,0,0,5.1,0,0,0,1,
-            1,0,0,0,0,0,0,0,0,1,
-            1,0,0,0,0,0,0,0,0,1,
-            1,1,1,1,1,1,1,1,1,1,
-            10,
+        1,1,1,1,1,1,1,1,1,1,
+        1,0,3.1,0,4.1,0,0,0,0,1,
+        1,0,2,0,0,0,0,0,0,1,
+        1,0,0,0,0,0,5.2,0,0,1,
+        1,0,0,0,0,0,0,0,0,1,
+        1,0,0,0,0,0,0,0,0,1,
+        1,0,0,0,0,5.1,0,0,0,1,
+        1,0,0,0,0,0,0,0,0,1,
+        1,0,0,0,0,0,0,0,0,1,
+        1,1,1,1,1,1,1,1,1,1,
+        10,
+    },
+    {
+        1,1,1,1,
+        1,3,5.2,1,
+        1,5.1,0,1,
+        1,1,1,1,
+        4,
     }
 }
+current_level = 1
 
 world = {
 
@@ -153,7 +165,12 @@ world = {
     layer = 3,
 
     load_level = function(this, level_id)
-        level = level_bank[level_id]
+        level_id = level_id or current_level
+
+        level = {}
+        for i=1, #level_bank[level_id] - 1 do
+            level[i] = level_bank[level_id][i]
+        end
         width = level_bank[level_id][#level_bank[level_id]]
 
         obj_index = #this.level_objects + 1
@@ -162,7 +179,7 @@ world = {
         update_index = #update_call + 1
 
         for i,value in pairs(level) do
-            if value != 0 and value < #tile_functionalities do
+            if value != 0 do
 
                 new = inherit(tile_functionalities[flr(value)])
 

@@ -107,7 +107,7 @@ function _init()
     update_call = {player1, player2, camera}
     collision_objects = {player1, player2}
 
-    world:load_level(1)
+    world:load_level(current_level)
 end
 
 function _update()
