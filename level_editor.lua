@@ -27,8 +27,7 @@ cursor = {
     write = function(this)
         -- Add any necessary rows  
         m = max(this.ix, this.iy)
-        printh("level: "..#level, 'log.txt')
-        printh("iy: "..this.iy, 'log.txt')
+        
         while not (#level > m) do
             level[#level + 1] = {0}
         end
@@ -94,6 +93,7 @@ end
 function _draw()
     cls(0)
 
+    if btn(1, 1) then printh(encode(level), 'log.txt') end
 
     cursor:_draw()
     draw_level()
