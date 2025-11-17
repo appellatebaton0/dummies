@@ -27,7 +27,7 @@ cursor = {
     write = function(this)
         -- Add any necessary rows  
         m = max(this.ix, this.iy)
-        
+
         while not (#level > m) do
             level[#level + 1] = {0}
         end
@@ -82,6 +82,7 @@ function _init()
 
     camera.off_x = 64 - pixels_per_unit
     camera.off_y = 64 - pixels_per_unit
+    decode("DS")
 end
 
 function _update()
@@ -93,7 +94,7 @@ end
 function _draw()
     cls(0)
 
-    if btn(1, 1) then printh(encode(level), 'log.txt') end
+    if btnp(1, 1) then decode(encode(level)) end
 
     cursor:_draw()
     draw_level()

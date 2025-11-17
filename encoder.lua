@@ -21,9 +21,7 @@ function id(value)
 end
 
 function encode(table)
-    -- The table's format is {{row1}, {row2}...}
-
-    -- Turn it into a straight array.
+    -- Turn the table into a straight array.
     array = {}
 
     for i, row in pairs(table) do
@@ -32,6 +30,7 @@ function encode(table)
         end
     end
 
+    -- Encode it into format [VALUE][ID][COUNT]...
     coded_string = ""
 
     last_value = -1
@@ -57,9 +56,16 @@ function encode(table)
 
     printh(coded_string, 'log.txt')
 
-
+    return coded_string
 end
 
 function decode(string)
+    -- Decode a string from the format [VALUE][ID][COUNT]...
 
+    for i=1, #string do
+        if i % 3 == 1 do
+            index = ((i - 1) * 3) - 1
+            printh("Section "..tostr(((i - 1) / 3) + 1)..": "..sub(string, i, i + 2), 'log.txt')
+        end
+    end
 end
