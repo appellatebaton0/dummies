@@ -1,21 +1,17 @@
 
 pixels_per_unit = 8
 
+size = 2
 level = {
-    {0}
+    0, 1, 0, 2
 }
 
-function get_level_size()
-    a = #level
-    b = #level[1]
-    if a > b then return a else return b end
-end
-
 function draw_level()
-    for i, row in pairs(level) do
-        for j, value in pairs(row) do
-            cspr(flr(value), (i-1) * pixels_per_unit, (j-1) * pixels_per_unit)
-        end
+    for i = 1, #level do
+        x = ((i - 1) % size) * pixels_per_unit
+        y = flr((i - 1) / size) * pixels_per_unit
+
+        cspr(flr(level[i]), x, y)
     end
 end
 
@@ -26,20 +22,32 @@ cursor = {
 
     write = function(this)
         -- Add any necessary rows  
-        m = max(this.ix, this.iy)
+        m = max(this.ix, this.iy) + 1
 
-        while not (#level > m) do
-            level[#level + 1] = {0}
+        while size < m do
+            for i=1, size do
+                add(level, 0, (size + 1) * i)
+            end
+            size += 1
+        end
+
+        while #level < size*size do
+            add(level,0)
         end
 
         -- Add any necessary columns
-        for i=1, #level do
-            while #level[i] <= m do
-                level[i][#level[i] + 1] = 0
-            end
-        end
+        --for i=1, #level do
+        --    while #level[i] <= m do
+        --        level[i][#level[i] + 1] = 0
+        --    end
+        --end
+       
 
-        level[this.ix + 1][this.iy + 1] = this.i
+        i = (this.ix) + ((this.iy) * size) + 1
+
+        //printh("WROTE "..this.i.." to "..i, 'log.txt')
+
+        level[i] = this.i
         
     end,
 
@@ -82,7 +90,6 @@ function _init()
 
     camera.off_x = 64 - pixels_per_unit
     camera.off_y = 64 - pixels_per_unit
-    decode("DS")
 end
 
 function _update()
@@ -99,8 +106,7 @@ function _draw()
     cursor:_draw()
     draw_level()
 
-    ls = get_level_size()
-    crect(-1, -1, (ls * pixels_per_unit), (ls * pixels_per_unit))
+    crect(-1, -1, (size * pixels_per_unit), (size * pixels_per_unit))
 
-    print("p: "..cursor.ix..','..cursor.iy.." i: "..cursor.i.." size: "..ls, 3, 120, 7)
+    print("p: "..cursor.ix..','..cursor.iy.." i: "..cursor.i.." size: "..size, 3, 120, 7)
 end

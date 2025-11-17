@@ -1,11 +1,5 @@
-008101006106006101006101003104
-Section 1: 008
+001101003103
+Section 1: 001
 Section 2: 101
-Section 3: 006
-Section 4: 106
-Section 5: 006
-Section 6: 101
-Section 7: 006
-Section 8: 101
-Section 9: 003
-Section 10: 104
+Section 3: 003
+Section 4: 103

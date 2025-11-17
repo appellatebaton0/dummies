@@ -20,16 +20,7 @@ function id(value)
     return value - flr(value)
 end
 
-function encode(table)
-    -- Turn the table into a straight array.
-    array = {}
-
-    for i, row in pairs(table) do
-        for j, value in pairs(row) do
-            add(array, value)
-        end
-    end
-
+function encode(array)
     -- Encode it into format [VALUE][ID][COUNT]...
     coded_string = ""
 
