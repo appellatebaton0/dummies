@@ -35,11 +35,7 @@ function code_as_num(value)
 end
 
 function as_id(value)
-    
-
     decim = value - flr(value)
-
-    printh("IDing "..value.." to "..(decim * ( 10 ^ (#tostr(decim) - 2) )), 'log.txt')
 
     return flr(decim * ( 10 ^ (#tostr(decim) - 2) ) + 0.5)
 end

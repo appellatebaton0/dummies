@@ -72,6 +72,18 @@ player2 = {
     end
 }
 
+function can_switch()
+    a = {player1.x, player1.y}
+    b = {player2.x, player2.y}
+
+    c = {
+        x = (player1.x - player2.x)  ^ 2,
+        y = (player1.y - player2.y)  ^ 2
+    }
+
+    return (sqrt(c.x + c.y) / 8) <= 4
+end
+
 function sort_draw_call() 
 
     new = {}
@@ -113,7 +125,7 @@ end
 function _update()
 
     // Switching between players
-    if btnp(4) then
+    if btnp(5) and can_switch() then
         if active_player == player1 then active_player = player2 player1.draw_priority = 2 player2.draw_priority = 3 sort_draw_call()
     elseif active_player == player2 then active_player = player1 player1.draw_priority = 3 player2.draw_priority = 2 sort_draw_call()end
     end
@@ -129,6 +141,24 @@ function _draw()
     cls(0)
     
     sort_draw_call()
+
+    xdown = 0 if btn(5) then xdown = 1 end
+
+    if can_switch() then
+        rectfill(2, 2, 12, 12, 11)
+        rect(2, 2, 12, 12,  3)
+
+        
+        print("❎", 4, 5, 2)
+        print("❎", 4, 4 + xdown, 3)
+    else
+        rectfill(2, 2, 12, 12, 8)
+        rect(2, 2, 12, 12,  2)
+
+
+        print("❎", 4, 5, 3)
+        print("❎", 4, 4 + xdown, 2)
+    end
 
     for i, object in pairs(draw_call) do
         object:_draw()
