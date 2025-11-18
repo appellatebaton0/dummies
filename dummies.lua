@@ -120,6 +120,8 @@ function _init()
     collision_objects = {player1, player2}
 
     world:load_level(current_level)
+
+    music(0 )
 end
 
 function _update()

@@ -37,6 +37,7 @@ tile_functionalities = {
                 world:unload_level() 
                 current_level += 1
                 world:load_level()
+                sfx(5)
             end
         end
     },
@@ -61,7 +62,10 @@ tile_functionalities = {
             cspr(this.sn, this.x, this.y)
         end,
 
+        switch = false,
         _update = function(this) 
+            if collides(this) then if not this.switch then this.switch = true sfx(4) end else this.switch = false end
+
             this.down = collides(this)
             if this.down then this.sn = 3 + 16 else this.sn = 3 end
         end
@@ -154,14 +158,14 @@ tile_functionalities = {
         end,
 
         switch = false,
-        has_switch = false,
         _update = function(this) 
             if collides(this) then
-                if not this.has_switch then
+                if not this.switch then
+                    sfx(0)
                     this.down = not this.down
-                    this.has_switch = true
+                    this.switch = true
                 end
-            else this.has_switch = false end
+            else this.switch = false end
 
             if this.down then this.sn = 6 + 16 else this.sn = 6 end
         end
@@ -169,13 +173,14 @@ tile_functionalities = {
 }
 
 level_bank = {
-    "10900610251161100141100210200610900o8",
     "10a00310100810100310100151100421100110100310100810100310a00>00>101521d",
     "10a00710200152100320100110200710b0031010041010015110011010041010031010041050049",
     "11b00301200311200301200311201500311201311201311201311700201111200311200151101111200120152111200311200311ba",
     "10a00710200152100331100110200710b00310100310200151100141100120100110200310100310a9",
     "10e00310100310100310200310100131152142100310200310100310100310200310500310200310100310100310200151100141100132100110100120100110200310100310100310e00Qd",
-
+    "10a00310100310200151100141100122100110200310100310b00710200152100361100110200710a9",
+    "10e00310100310100110100110251133100142100131100110600310100310100110100110f00310100310100310252162100141100343100120100110200310100310100310e00Qd",
+    "10g00d10200110100110100210100210100110100110200110100110100110100110100110100110100110200210100210100110100110100110100110200210100310100310100210200d10200110100110100110100110100110152110100110200110151110100110100310300110200210100110100210100110100110100110200210100110100210100110100110100110200d10g00uf",
 }
 current_level = 1
 
