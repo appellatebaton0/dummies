@@ -45,6 +45,8 @@ function encode(array)
         end
     end
 
+    coded_string = coded_string..get_as_code(array[#array])
+
     printh(coded_string, 'log.txt')
 
     return coded_string
@@ -55,8 +57,12 @@ function decode(string)
 
     for i=1, #string do
         if i % 3 == 1 do
-            index = ((i - 1) * 3) - 1
-            printh("Section "..tostr(((i - 1) / 3) + 1)..": "..sub(string, i, i + 2), 'log.txt')
+            if i == #string then 
+                printh("Width "..sub(string, i), 'log.txt')
+            else
+                index = ((i - 1) * 3) - 1
+                printh("Section "..tostr(((i - 1) / 3) + 1)..": "..sub(string, i, i + 2), 'log.txt')
+            end
         end
     end
 end

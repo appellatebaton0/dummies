@@ -19,7 +19,7 @@ function crect(left, top, right, bottom, fill)
 
     left -= camera.x right -= camera.x
     top -= camera.y bottom -= camera.y
-
+    
     if fill != nil then
         rect(left, top, right, bottom, fill)
     else

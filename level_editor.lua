@@ -1,9 +1,9 @@
 
 pixels_per_unit = 8
 
-size = 2
+size = 1
 level = {
-    0, 1, 0, 2
+    0,
 }
 
 function draw_level()
@@ -13,6 +13,14 @@ function draw_level()
 
         cspr(flr(level[i]), x, y)
     end
+end
+
+function save()
+    add(level, size)
+    decode(encode(level))
+
+    level = {0}
+    size = 1
 end
 
 cursor = {
@@ -25,27 +33,19 @@ cursor = {
         m = max(this.ix, this.iy) + 1
 
         while size < m do
+            -- Add new columns
             for i=1, size do
                 add(level, 0, (size + 1) * i)
             end
             size += 1
-        end
 
-        while #level < size*size do
-            add(level,0)
+            -- Add any blank space (rows)
+            while #level < size*size do 
+                add(level,0)
+            end
         end
-
-        -- Add any necessary columns
-        --for i=1, #level do
-        --    while #level[i] <= m do
-        --        level[i][#level[i] + 1] = 0
-        --    end
-        --end
-       
 
         i = (this.ix) + ((this.iy) * size) + 1
-
-        //printh("WROTE "..this.i.." to "..i, 'log.txt')
 
         level[i] = this.i
         
@@ -101,7 +101,7 @@ end
 function _draw()
     cls(0)
 
-    if btnp(1, 1) then decode(encode(level)) end
+    if btnp(1, 1) then save() end
 
     cursor:_draw()
     draw_level()
