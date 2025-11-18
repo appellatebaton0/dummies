@@ -11,6 +11,8 @@ code_array = {
 
 function num_as_code(value)
 
+    value = flr(value)
+
     if value >= 0 and value <= 9 then return tostr(value)
     elseif value > 9 and value < #code_array then return code_array[value - 9] end
 
@@ -33,7 +35,13 @@ function code_as_num(value)
 end
 
 function as_id(value)
-    return value - flr(value)
+    
+
+    decim = value - flr(value)
+
+    printh("IDing "..value.." to "..(decim * ( 10 ^ (#tostr(decim) - 2) )), 'log.txt')
+
+    return flr(decim * ( 10 ^ (#tostr(decim) - 2) ) + 0.5)
 end
 
 function encode(array)

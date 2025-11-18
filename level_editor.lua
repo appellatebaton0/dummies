@@ -25,7 +25,8 @@ end
 
 cursor = {
     ix = 1, iy = 1,
-    x = 0, y = 0, i = 1,
+    x = 0, y = 0, 
+    i = 1, d = 0,
 
 
     write = function(this)
@@ -47,7 +48,7 @@ cursor = {
 
         i = (this.ix) + ((this.iy) * size) + 1
 
-        level[i] = this.i
+        level[i] = this.i + (this.d / (10 ^ #tostr(this.d)))
         
     end,
 
@@ -99,7 +100,13 @@ function _update()
 end
 
 function _draw()
+
     cls(0)
+
+    if btnp(0, 1) then cursor.d -= 1 end
+    if btnp(3, 1) then cursor.d += 1 end
+
+    cursor.d = max(0, cursor.d)
 
     if btnp(1, 1) then save() end
 
@@ -108,5 +115,10 @@ function _draw()
 
     crect(-1, -1, (size * pixels_per_unit), (size * pixels_per_unit))
 
-    print(code_as_num("0").." p: "..cursor.ix..','..cursor.iy.." i: "..cursor.i.." size: "..size, 3, 120, 7)
+    cur_ind = (cursor.ix) + ((cursor.iy) * size) + 1
+    if level[cur_ind] != nil then
+        print("current: "..level[cur_ind], 5, 5, 7)
+    end
+
+    print(" p: "..cursor.ix..','..cursor.iy.." i: "..cursor.i.." d: "..cursor.d.." size: "..size, 3, 120, 7)
 end
