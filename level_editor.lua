@@ -108,5 +108,5 @@ function _draw()
 
     crect(-1, -1, (size * pixels_per_unit), (size * pixels_per_unit))
 
-    print("p: "..cursor.ix..','..cursor.iy.." i: "..cursor.i.." size: "..size, 3, 120, 7)
+    print(code_as_num("0").." p: "..cursor.ix..','..cursor.iy.." i: "..cursor.i.." size: "..size, 3, 120, 7)
 end
