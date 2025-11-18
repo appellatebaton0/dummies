@@ -135,26 +135,7 @@ tile_functionalities = {
 }
 
 level_bank = {
-    {
-        1,1,1,1,1,1,1,1,1,1,
-        1,0,3.1,0,4.1,0,0,0,0,1,
-        1,0,2,0,0,0,0,0,0,1,
-        1,0,0,0,0,0,5.2,0,0,1,
-        1,0,0,0,0,0,0,0,0,1,
-        1,0,0,0,0,0,0,0,0,1,
-        1,0,0,0,0,5.1,0,0,0,1,
-        1,0,0,0,0,0,0,0,0,1,
-        1,0,0,0,0,0,0,0,0,1,
-        1,1,1,1,1,1,1,1,1,1,
-        10,
-    },
-    {
-        1,1,1,1,
-        1,3,5.2,1,
-        1,5.1,0,1,
-        1,1,1,1,
-        4,
-    }
+    "0061040011010021010011010021010011045",
 }
 current_level = 1
 
@@ -167,11 +148,10 @@ world = {
     load_level = function(this, level_id)
         level_id = level_id or current_level
 
-        level = {}
-        for i=1, #level_bank[level_id] - 1 do
-            level[i] = level_bank[level_id][i]
-        end
-        width = level_bank[level_id][#level_bank[level_id]]
+        // deli()
+        level = decode(level_bank[level_id])
+        width = level[#level]
+        deli(level, #level)
 
         obj_index = #this.level_objects + 1
         collide_index = #collision_objects + 1

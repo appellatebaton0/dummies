@@ -17,7 +17,7 @@ end
 
 function save()
     add(level, size)
-    decode(encode(level))
+    printh("\""..encode(level).."\",", 'log.txt')
 
     level = {0}
     size = 1

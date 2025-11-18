@@ -63,8 +63,6 @@ function encode(array)
 
     coded_string = coded_string..num_as_code(array[#array])
 
-    printh(coded_string, 'log.txt')
-
     return coded_string
 end
 
@@ -93,9 +91,5 @@ function decode(string)
         end
     end
 
-    for i=1, #table do
-        printh(table[i]..",", 'log.txt')
-    end
-
-
+    return table
 end
