@@ -131,10 +131,45 @@ tile_functionalities = {
 
             end
         end
+    },
+    { -- Levers (6.?)
+
+        _init = function (this)
+            this.layer = -flr(this.value)
+
+            this.interaction_id = this.value - flr(this.value)
+        end,
+
+        _ready = function(this, world)
+            for i, object in pairs(world) do
+                if object.value != this.value and 
+                   object.interaction_id == this.interaction_id then
+                    this.pair_obj = object
+                end
+            end
+        end,
+
+        _draw = function(this)
+            cspr(this.sn, this.x, this.y)
+        end,
+
+        switch = false,
+        has_switch = false,
+        _update = function(this) 
+            if collides(this) then
+                if not this.has_switch then
+                    this.down = not this.down
+                    this.has_switch = true
+                end
+            else this.has_switch = false end
+
+            if this.down then this.sn = 6 + 16 else this.sn = 6 end
+        end
     }
 }
 
 level_bank = {
+    "10900610251161100141100210200610900o8",
     "10a00310100810100310100151100421100110100310100810100310a00>00>101521d",
     "10a00710200152100320100110200710b0031010041010015110011010041010031010041050049",
     "11b00301200311200301200311201500311201311201311201311700201111200311200151101111200120152111200311200311ba",
