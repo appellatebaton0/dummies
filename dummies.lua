@@ -149,16 +149,23 @@ function _draw()
         rect(2, 2, 12, 12,  3)
 
         
-        print("❎", 4, 5, 2)
+        print("❎", 4, 5, 5)
         print("❎", 4, 4 + xdown, 3)
+
+        
+        cline(player1.x + 4, player1.y + 4, player2.x + 4, player2.y + 4, 4)
+        
     else
         rectfill(2, 2, 12, 12, 8)
         rect(2, 2, 12, 12,  2)
 
 
-        print("❎", 4, 5, 3)
+        print("❎", 4, 5, 0)
         print("❎", 4, 4 + xdown, 2)
     end
+
+    print("switch", 16, 5, 7)
+    
 
     for i, object in pairs(draw_call) do
         object:_draw()

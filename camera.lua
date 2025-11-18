@@ -19,11 +19,23 @@ function crect(left, top, right, bottom, fill)
 
     left -= camera.x right -= camera.x
     top -= camera.y bottom -= camera.y
-    
+
     if fill != nil then
         rect(left, top, right, bottom, fill)
     else
         rect(left, top, right, bottom)
+    end
+end
+
+function cline(x0, y0, x1, y1, fill)
+
+    x0 -= camera.x x1 -= camera.x
+    y0 -= camera.y y1 -= camera.y
+
+    if fill != nil then
+        line(x0, y0, x1, y1, fill)
+    else
+        line(x0, y0, x1, y1)
     end
 end
 
